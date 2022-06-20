@@ -1,8 +1,8 @@
 {
-  "name": "@astraswap/sdk",
+  "name": "@astradefi/sdk",
   "license": "MIT",
   "version": "1.0.0",
-  "description": "🛠 An SDK for building applications on top of Astraswap.",
+  "description": "🛠 An SDK for building applications on top of Astradefi.",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "files": [
@@ -10,7 +10,7 @@
   ],
   "repository": "https://github.com/AstraProtocol/astra-swap-sdk",
   "keywords": [
-    "astraswap",
+    "astradefi",
     "astra"
   ],
   "module": "dist/sdk.esm.js",
