@@ -11,13 +11,13 @@ To run the tests, follow these steps. You must have at least node v10 and [yarn]
 First clone the repository:
 
 ```sh
-git clone https://github.com/AstraProtocol/astra-swap-sdk
+git clone https://github.com/SolarFinance/solar-swap-sdk
 ```
 
-Move into the astra-swap-sdk working directory
+Move into the solar-swap-sdk working directory
 
 ```sh
-cd astra-swap-sdk
+cd solar-swap-sdk
 ```
 
 Install dependencies
