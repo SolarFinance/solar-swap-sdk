@@ -1,7 +1,7 @@
 {
   "name": "@solarswap/sdk",
   "license": "MIT",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "🛠 An SDK for building applications on top of SolarSwap.",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
@@ -19,7 +19,8 @@
     "build": "tsdx build",
     "start": "tsdx watch",
     "test": "tsdx test",
-    "prepublishOnly": "tsdx build"
+    "prepublishOnly": "tsdx build",
+    "publish": "prepublishOnly && publish --access public"
   },
   "dependencies": {
     "big.js": "^5.2.2",
