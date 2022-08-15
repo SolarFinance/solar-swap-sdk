@@ -8,7 +8,7 @@
   "files": [
     "dist"
   ],
-  "repository": "https://github.com/AstraProtocol/astra-swap-sdk",
+  "repository": "https://github.com/SolarFinance/solar-swap-sdk.git",
   "keywords": [
     "solarswap",
     "astra"
