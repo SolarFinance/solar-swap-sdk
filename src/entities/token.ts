@@ -76,7 +76,7 @@ export const WETH = {
          ),
          [ChainId.TESTNET]: new Token(
            ChainId.TESTNET,
-           '0x439E926DB4A9263d53b2ad66E1E3B052C607515D',
+           '0xEfd086F56311a6DD26DF0951Cdd215F538689B3a',
            18,
            'WASA',
            'Wrapped ASA',
