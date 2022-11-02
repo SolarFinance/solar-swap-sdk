@@ -41,7 +41,7 @@ export class Pair {
           FACTORY_ADDRESS_MAP[token0.chainId],
           keccak256(['bytes'], [pack(['address', 'address'], [token0.address, token1.address])]),
           INIT_CODE_HASH_MAP[token0.chainId]
-        )
+        ),
       }
     }
 
@@ -56,8 +56,8 @@ export class Pair {
       tokenAmounts[0].token.chainId,
       Pair.getAddress(tokenAmounts[0].token, tokenAmounts[1].token),
       18,
-      'WASA-LP',
-      'Solarswap LPs'
+      `${tokenAmountA.token.symbol}/${tokenAmountB.token.symbol}`,
+      `Solarswap ${tokenAmountA.token.symbol}/${tokenAmountB.token.symbol}-LP`
     )
     this.tokenAmounts = tokenAmounts as [TokenAmount, TokenAmount]
   }
@@ -181,6 +181,40 @@ export class Pair {
       const amount1 = JSBI.divide(JSBI.multiply(tokenAmounts[1].raw, totalSupply.raw), this.reserve1.raw)
       liquidity = JSBI.lessThanOrEqual(amount0, amount1) ? amount0 : amount1
     }
+    if (!JSBI.greaterThan(liquidity, ZERO)) {
+      throw new InsufficientInputAmountError()
+    }
+    return new TokenAmount(this.liquidityToken, liquidity)
+  }
+
+  /**
+   * 
+   * @param totalSupply 
+   * @param tokenAmountR: tokenAmountReality 
+   * @param tokenAmountV: tokenAmountVirtual, be swapped from tokenAmountR
+   * @returns 
+   */
+  public getSingleLiquidityMinted(
+    totalSupply: TokenAmount,
+    tokenAmountR: TokenAmount,
+    tokenAmountV: TokenAmount
+  ): TokenAmount {
+    invariant(totalSupply.token.equals(this.liquidityToken), 'LIQUIDITY')
+    invariant(!totalSupply.equalTo(ZERO), 'NO LIQUIDITY')
+
+    // Calculate tokenAmountV, tokenAmountR after swap
+
+    const tokenAmounts = tokenAmountR.token.sortsBefore(tokenAmountV.token) // does safety checks
+      ? [tokenAmountR, tokenAmountV]
+      : [tokenAmountV, tokenAmountR]
+    invariant(tokenAmounts[0].token.equals(this.token0) && tokenAmounts[1].token.equals(this.token1), 'TOKEN')
+
+    let liquidity: JSBI
+
+    const amount0 = JSBI.divide(JSBI.multiply(tokenAmounts[0].raw, totalSupply.raw), this.reserve0.raw)
+    const amount1 = JSBI.divide(JSBI.multiply(tokenAmounts[1].raw, totalSupply.raw), this.reserve1.raw)
+    liquidity = JSBI.lessThanOrEqual(amount0, amount1) ? amount0 : amount1
+
     if (!JSBI.greaterThan(liquidity, ZERO)) {
       throw new InsufficientInputAmountError()
     }
