@@ -41,7 +41,7 @@ export class Pair {
           FACTORY_ADDRESS_MAP[token0.chainId],
           keccak256(['bytes'], [pack(['address', 'address'], [token0.address, token1.address])]),
           INIT_CODE_HASH_MAP[token0.chainId]
-        ),
+        )
       }
     }
 
@@ -188,28 +188,32 @@ export class Pair {
   }
 
   /**
-   * 
-   * @param totalSupply 
-   * @param tokenAmountR: tokenAmountReality 
-   * @param tokenAmountV: tokenAmountVirtual, be swapped from tokenAmountR
-   * @returns 
+   *
+   * @param totalSupply
+   * @param tokenAmountA: tokenAmountA
+   * @param tokenAmountB: tokenAmountB
+   * @returns
    */
   public getSingleLiquidityMinted(
     totalSupply: TokenAmount,
-    tokenAmountR: TokenAmount,
-    tokenAmountV: TokenAmount
+    tokenAmountA: TokenAmount,
+    tokenAmountB: TokenAmount
   ): TokenAmount {
     invariant(totalSupply.token.equals(this.liquidityToken), 'LIQUIDITY')
-    invariant(!totalSupply.equalTo(ZERO), 'NO LIQUIDITY')
+    invariant(!totalSupply.greaterThan(ZERO), 'NO LIQUIDITY')
 
-    // Calculate tokenAmountV, tokenAmountR after swap
+    // Calculate tokenAmountB, tokenAmountA after swap
 
-    const tokenAmounts = tokenAmountR.token.sortsBefore(tokenAmountV.token) // does safety checks
-      ? [tokenAmountR, tokenAmountV]
-      : [tokenAmountV, tokenAmountR]
+    const tokenAmounts = tokenAmountA.token.sortsBefore(tokenAmountB.token) // does safety checks
+      ? [tokenAmountA, tokenAmountB]
+      : [tokenAmountB, tokenAmountA]
     invariant(tokenAmounts[0].token.equals(this.token0) && tokenAmounts[1].token.equals(this.token1), 'TOKEN')
 
     let liquidity: JSBI
+
+    if (tokenAmounts[1].greaterThan(this.reserve1) || tokenAmounts[0].greaterThan(this.reserve0)) {
+      throw new InsufficientInputAmountError()
+    }
 
     const amount0 = JSBI.divide(JSBI.multiply(tokenAmounts[0].raw, totalSupply.raw), this.reserve0.raw)
     const amount1 = JSBI.divide(JSBI.multiply(tokenAmounts[1].raw, totalSupply.raw), this.reserve1.raw)
