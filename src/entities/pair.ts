@@ -199,34 +199,29 @@ export class Pair {
     tokenAmountA: TokenAmount,
     tokenAmountB: TokenAmount
   ): TokenAmount {
-                   invariant(totalSupply.token.equals(this.liquidityToken), 'LIQUIDITY')
-                   invariant(totalSupply.greaterThan(ZERO), 'NO LIQUIDITY')
+		invariant(totalSupply.token.equals(this.liquidityToken), 'LIQUIDITY')
+		invariant(totalSupply.greaterThan(ZERO), 'NO LIQUIDITY')
 
-                   // Calculate tokenAmountB, tokenAmountA after swap
+		const tokenAmounts = tokenAmountA.token.sortsBefore(tokenAmountB.token) // does safety checks
+      ? [tokenAmountA, tokenAmountB]
+      : [tokenAmountB, tokenAmountA]
+    invariant(tokenAmounts[0].token.equals(this.token0) && tokenAmounts[1].token.equals(this.token1), 'TOKEN')
 
-                   const tokenAmounts = tokenAmountA.token.sortsBefore(tokenAmountB.token) // does safety checks
-                     ? [tokenAmountA, tokenAmountB]
-                     : [tokenAmountB, tokenAmountA]
-                   invariant(
-                     tokenAmounts[0].token.equals(this.token0) && tokenAmounts[1].token.equals(this.token1),
-                     'TOKEN'
-                   )
+		let liquidity: JSBI
 
-                   let liquidity: JSBI
+		if (tokenAmounts[1].greaterThan(this.reserve1) || tokenAmounts[0].greaterThan(this.reserve0)) {
+      throw new InsufficientInputAmountError()
+    }
 
-                   if (tokenAmounts[1].greaterThan(this.reserve1) || tokenAmounts[0].greaterThan(this.reserve0)) {
-                     throw new InsufficientInputAmountError()
-                   }
+		const amount0 = JSBI.divide(JSBI.multiply(tokenAmounts[0].raw, totalSupply.raw), this.reserve0.raw)
+    const amount1 = JSBI.divide(JSBI.multiply(tokenAmounts[1].raw, totalSupply.raw), this.reserve1.raw)
+    liquidity = JSBI.lessThanOrEqual(amount0, amount1) ? amount0 : amount1
 
-                   const amount0 = JSBI.divide(JSBI.multiply(tokenAmounts[0].raw, totalSupply.raw), this.reserve0.raw)
-                   const amount1 = JSBI.divide(JSBI.multiply(tokenAmounts[1].raw, totalSupply.raw), this.reserve1.raw)
-                   liquidity = JSBI.lessThanOrEqual(amount0, amount1) ? amount0 : amount1
-
-                   if (!JSBI.greaterThan(liquidity, ZERO)) {
-                     throw new InsufficientInputAmountError()
-                   }
-                   return new TokenAmount(this.liquidityToken, liquidity)
-                 }
+		if (!JSBI.greaterThan(liquidity, ZERO)) {
+			throw new InsufficientInputAmountError()
+		}
+		return new TokenAmount(this.liquidityToken, liquidity)
+	}
 
   public getLiquidityValue(
     token: Token,
