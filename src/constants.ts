@@ -20,7 +20,6 @@ export enum Rounding {
 }
 
 export const FACTORY_ADDRESS = '0xd7C71d7E61Ed1B70C33e8c856B941Ec9C7Da9Fe2'
-export const ZAPIN_ADDRESS = '0x76eBE3463d572ec9DB9cB3ab3fD35599C96D8dB8'
 
 export const FACTORY_ADDRESS_MAP = {
   [ChainId.MAINNET]: FACTORY_ADDRESS,
