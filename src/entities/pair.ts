@@ -56,8 +56,8 @@ export class Pair {
       tokenAmounts[0].token.chainId,
       Pair.getAddress(tokenAmounts[0].token, tokenAmounts[1].token),
       18,
-      'WASA-LP',
-      'Solarswap LPs'
+      `${tokenAmountA.token.symbol}/${tokenAmountB.token.symbol}`,
+      `Solarswap ${tokenAmountA.token.symbol}/${tokenAmountB.token.symbol}-LP`
     )
     this.tokenAmounts = tokenAmounts as [TokenAmount, TokenAmount]
   }
@@ -186,6 +186,42 @@ export class Pair {
     }
     return new TokenAmount(this.liquidityToken, liquidity)
   }
+
+  /**
+   *
+   * @param totalSupply
+   * @param tokenAmountA: tokenAmountA
+   * @param tokenAmountB: tokenAmountB
+   * @returns
+   */
+  public getSingleLiquidityMinted(
+    totalSupply: TokenAmount,
+    tokenAmountA: TokenAmount,
+    tokenAmountB: TokenAmount
+  ): TokenAmount {
+		invariant(totalSupply.token.equals(this.liquidityToken), 'LIQUIDITY')
+		invariant(totalSupply.greaterThan(ZERO), 'NO LIQUIDITY')
+
+		const tokenAmounts = tokenAmountA.token.sortsBefore(tokenAmountB.token) // does safety checks
+      ? [tokenAmountA, tokenAmountB]
+      : [tokenAmountB, tokenAmountA]
+    invariant(tokenAmounts[0].token.equals(this.token0) && tokenAmounts[1].token.equals(this.token1), 'TOKEN')
+
+		let liquidity: JSBI
+
+		if (tokenAmounts[1].greaterThan(this.reserve1) || tokenAmounts[0].greaterThan(this.reserve0)) {
+      throw new InsufficientInputAmountError()
+    }
+
+		const amount0 = JSBI.divide(JSBI.multiply(tokenAmounts[0].raw, totalSupply.raw), this.reserve0.raw)
+    const amount1 = JSBI.divide(JSBI.multiply(tokenAmounts[1].raw, totalSupply.raw), this.reserve1.raw)
+    liquidity = JSBI.lessThanOrEqual(amount0, amount1) ? amount0 : amount1
+
+		if (!JSBI.greaterThan(liquidity, ZERO)) {
+			throw new InsufficientInputAmountError()
+		}
+		return new TokenAmount(this.liquidityToken, liquidity)
+	}
 
   public getLiquidityValue(
     token: Token,
