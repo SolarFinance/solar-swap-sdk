@@ -72,7 +72,7 @@ export const WETH = {
            18,
            'WASA',
            'Wrapped ASA',
-           'https://www.binance.org'
+           'https://www.astranaut.io'
          ),
          [ChainId.TESTNET]: new Token(
            ChainId.TESTNET,
